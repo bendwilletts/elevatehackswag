@@ -24,13 +24,22 @@
             <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
 
-        <div class="container">
+        <div class="container-fluid">
             <div class = "row">
                 <div class="col-md-12" id="header">
                     <h2>Map Page</h2>
                 </div>
             </div>
             <div class="row">
+                <div class="col-md-2">
+                    <ul class="list-group">
+                        <li class="list-group-item btn btn-light">Child care</li>
+                        <br>
+                        <li class="list-group-item btn btn-light">Clinic</li>
+                        <br>
+                        <li class="list-group-item btn btn-light">Park</li>
+                    </ul>
+                </div>
                 <div class="col-md-10">
                     <div id="map"></div>
                 </div>
@@ -38,7 +47,7 @@
         </div>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBKCC5OXs0cKovC04ht8K4LvXfwvvHDfEc"
-            async defer></script>
+            defer></script>
         <script type="text/javascript" src="static/js/main.js"></script>
     </body>
 </html>
