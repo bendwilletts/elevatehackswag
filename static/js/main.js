@@ -2,6 +2,15 @@ var map;
 var uLat;
 var uLong;
 
+function loc_infowindow(info) {
+	return `<table class='table'>
+			<tbody>
+				<tr>
+					<th scope="row">Phone</th>
+					<td>` + info.PHONE + `</td>
+			</tbody>
+		</table>`;
+}
 
 function initMap() {
   // The location of Uluru
@@ -18,6 +27,14 @@ function initMap() {
         position: {lat: child_care_centers[i].LATITUDE, lng: child_care_centers[i].LONGITUDE},
         map: map,
         title: child_care_centers[i].LOC_NAME
+      });
+    
+      var infowindow = new google.maps.InfoWindow({
+        content: loc_infowindow(child_care_centers[i])
+      });
+      
+      marker.addListener('click', function() {
+	infowindow.open(map, marker);
       });
     }
   });
