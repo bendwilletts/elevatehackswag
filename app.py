@@ -80,26 +80,25 @@ def preprocessedData():
                  'cost_IG', 'cost_TG', 'cost_PG', 'cost_KG', 'cost_SG']
                 ].to_json(orient='index')
 
-@app.route("/getChildCareData", methods=['POST'])
+@app.route("/getChildCareData")
 def childcare():
-    if request.method == 'POST':
-        #Getting Parameters
-        in_loc_lat = request.values.get('a', type=str, default=None)
-        in_loc_lon = request.values.get('b', type=str, default=None)
+    #Getting Parameters
+    in_loc_lat = request.values.get('lat', type=str, default=None)
+    in_loc_lon = request.values.get('lon', type=str, default=None)
 
-        temp = copy.deepcopy(child_care)
-        #(4) DISTANCE FROM HOME
-        distance_col = []
-        for K, row in child_care.iterrows():
-            distance_col.append(calc_distance(float(in_loc_lat),float(in_loc_lon),row['LATITUDE'],row['LONGITUDE']))
+    temp = copy.deepcopy(child_care)
+    #(4) DISTANCE FROM HOME
+    distance_col = []
+    for K, row in child_care.iterrows():
+        distance_col.append(calc_distance(float(in_loc_lat),float(in_loc_lon),row['LATITUDE'],row['LONGITUDE']))
 
-        temp['DIST_FROM_HOME'] = distance_col
+    temp['DIST_FROM_HOME'] = distance_col
 
-        return temp[['LOC_NAME', 'LONGITUDE', 'LATITUDE', 'PHONE', 'AUSPICE', 'SUBSIDY', 'DIST_FROM_HOME',
-                 'IGSPACE', 'TGSPACE', 'PGSPACE', 'KGSPACE', 'SGSPACE', 'TOTSPACE',
-                 'IGSPACE_AVAIL', 'TGSPACE_AVAIL', 'KGSPACE_AVAIL', 'PGSPACE_AVAIL', 'SGSPACE_AVAIL', 'TOT_AVAIL',
-                 'cost_IG', 'cost_TG', 'cost_PG', 'cost_KG', 'cost_SG']
-                ].to_json(orient='index')
+    return temp[['LOC_NAME', 'LONGITUDE', 'LATITUDE', 'PHONE', 'AUSPICE', 'SUBSIDY', 'DIST_FROM_HOME',
+             'IGSPACE', 'TGSPACE', 'PGSPACE', 'KGSPACE', 'SGSPACE', 'TOTSPACE',
+             'IGSPACE_AVAIL', 'TGSPACE_AVAIL', 'KGSPACE_AVAIL', 'PGSPACE_AVAIL', 'SGSPACE_AVAIL', 'TOT_AVAIL',
+             'cost_IG', 'cost_TG', 'cost_PG', 'cost_KG', 'cost_SG']
+            ].to_json(orient='index')
 
 if __name__ == '__main__':
     app.run()

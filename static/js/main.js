@@ -1,17 +1,33 @@
+var map;
+var uLat;
+var uLong;
 
-// Initialize and add the map
+
 function initMap() {
   // The location of Uluru
   var toronto = {lat: 43.6532, lng: -79.3832}; //43.6532° N, 79.3832
   // The map, centered at Uluru
-  var map = new google.maps.Map(
+  map = new google.maps.Map(
       document.getElementById('map'), {zoom: 10, center: toronto});
+
+
+  $.get("http://localhost:5000/getChildCareData", {lat: uLat, lon: uLong}, function(data){
+    var child_care_centers = JSON.parse(data);
+    for(var i=0; i<Object.keys(child_care_centers).length; i++){
+      console.log("hello");
+      var marker = new google.maps.Marker({
+        position: {lat: child_care_centers[i].LATITUDE, lng: child_care_centers[i].LONGITUDE},
+        map: map,
+        title: child_care_centers[i].LOC_NAME
+      });
+    }
+  });
   // The marker, positioned at Uluru
   //var marker = new google.maps.Marker({position: toronto, map: map});
 }
-console.log("hello World");
+
 $(document).ready(function() {
-	
+  uLat = "43.599911"
+  uLong = "-79.504631"
   initMap();
-  var key = "AIzaSyBKCC5OXs0cKovC04ht8K4LvXfwvvHDfEc";
 });
