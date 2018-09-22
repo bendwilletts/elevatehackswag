@@ -1,10 +1,14 @@
 from flask import Flask, redirect, send_from_directory, jsonify, request
+from flask_cors import CORS
 import pandas as pd
 from math import sin, cos, sqrt, atan2, radians
 import copy
 import random
 
 app = Flask(__name__, static_folder='static')
+app.debug = True
+
+CORS(app)
 
 @app.route('/')
 def index():

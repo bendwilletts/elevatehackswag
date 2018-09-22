@@ -14,7 +14,6 @@ function initMap() {
   $.get("http://localhost:5000/getChildCareData", {lat: uLat, lon: uLong}, function(data){
     var child_care_centers = JSON.parse(data);
     for(var i=0; i<Object.keys(child_care_centers).length; i++){
-      console.log("hello");
       var marker = new google.maps.Marker({
         position: {lat: child_care_centers[i].LATITUDE, lng: child_care_centers[i].LONGITUDE},
         map: map,
