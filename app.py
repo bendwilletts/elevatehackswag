@@ -4,6 +4,9 @@ import pandas as pd
 from math import sin, cos, sqrt, atan2, radians
 import copy
 import random
+import requests
+
+davinciAPIkey = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJDQlAiLCJ0ZWFtX2lkIjoiZGExMmEwZmUtNDkzNy0zNzQ3LWI3ZTctZTgzMDQwMTJmNmFiIiwiZXhwIjo5MjIzMzcyMDM2ODU0Nzc1LCJhcHBfaWQiOiJkNzI3OGJmYS1kZmM5LTRlODQtODdhMi01NDZlY2E5YThiOTcifQ.bhEkLXi8LHS6iLJCGGjhmnOfXkkT8LZs1-LaNb3c4j4"
 
 app = Flask(__name__, static_folder='static')
 app.debug = True
@@ -11,6 +14,46 @@ app.debug = True
 CORS(app)
 
 current_user = None
+form_data = {}
+
+class User(object):
+    name = ""
+    age = 0
+    gender = ""
+    income = 0.0
+    lat = 0.0
+    lng = 0.0
+    address = ""
+    postCode = ""
+    relationStatus = ""
+    workAddress = ""
+    dailyCost = 0.0
+    numInfant = 0
+    numTodd = 0
+    numPre = 0
+    numKinder = 0
+    numSchool = 0
+
+    # The class "constructor" - It's actually an initializer 
+    def __init__(self, name, age, gender, income, lat, lng, address, postCode, relationStatus, workAddress, dailyCost, numInfant, numTodd, numPre, numKinder, numSchool):
+        self.name = name
+        self.age = age
+        self.gender = gender
+        self.income = income
+        self.lat = lat
+        self.lng = lng
+        self.address = address
+        self.postCode = postCode
+        self.relationStatus = relationStatus
+        self.workAddress = workAddress
+        self.dailyCost = dailyCost
+        self.numInfant = numInfant
+        self.numTodd = numTodd
+        self.numPre = numPre
+        self.numKinder = numKinder
+        self.numSchool = numSchool
+
+
 
 @app.route('/')
 def reroute():
@@ -18,15 +61,49 @@ def reroute():
 
 @app.route('/login')
 def login():
-	if current_user:
+	if current_user != None:
 		return redirect(url_for('home'))
 	return render_template('login.html')
 
-@app.route('/handle_data',methods=['GET', 'POST'])
+@app.route('/handle_data', methods=['POST'])
 def handle_data():
-	global current_user
-	current_user = request.form
-	return redirect(url_for('home'))
+    error=None
+    if len(request.form['custId'])==0:
+        error="Invalid customer ID"
+        return render_template('login.html', error=error)
+
+    for key,val in request.form.items():
+        if val=='':
+            form_data[key] = 0 if key != "workAddress" else ""
+        else: 
+            form_data[key] = val
+    #return render_template('success.html', form_data=form_data)
+    response = requests.get('https://api.td-davinci.com/api/customers/' + form_data['custId'],
+                                headers = { 'Authorization': davinciAPIkey })
+    print(response)
+    global current_user
+    current_user = User(
+        str(response.json()['result']['givenName'] + " " + response.json()['result']['surname']), 
+        int(response.json()['result']['age']), 
+        str(response.json()['result']['gender']), 
+        float(response.json()['result']['totalIncome']),
+        float(response.json()['result']['addresses']['principalResidence']['latitude']),
+        float(response.json()['result']['addresses']['principalResidence']['longitude']),
+        str(response.json()['result']['addresses']['principalResidence']['streetNumber'] + " " + response.json()['result']['addresses']['principalResidence']['streetName']),
+        str(response.json()['result']['addresses']['principalResidence']['postalCode']),
+        str(response.json()['result']['relationshipStatus']),
+        str(form_data["workAddress"]),
+        float(form_data["dailyCost"]),
+        int(form_data["numInfant"]),
+        int(form_data["numToddler"]),
+        int(form_data["numPreSchool"]),
+        int(form_data["numKinder"]),
+        int(form_data["numSchool"]))
+
+    for attr, value in current_user.__dict__.items():
+        print(attr, value)
+
+    return redirect(url_for('home'))
 
 @app.route('/home')
 def home():
@@ -89,6 +166,8 @@ child_care['cost_PG'] = rand_cost_arr(35,55)
 child_care['cost_KG'] = rand_cost_arr(30,45)
 child_care['cost_SG'] = rand_cost_arr(20,35)
 
+
+#Example ID: d7278bfa-dfc9-4e84-87a2-546eca9a8b97_c418b5e6-ef7a-4774-88bc-762f2e9adc53
 @app.route("/getPreprocessedData", methods=['GET'])
 def preprocessedData():
     if request.method == 'GET':
