@@ -1,13 +1,121 @@
-from flask import Flask, redirect, send_from_directory, jsonify, request
-import pandas as pd
+from flask import Flask, redirect, send_from_directory, jsonify, request, url_for, render_template
+from flask_cors import CORS
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import MinMaxScaler
 from math import sin, cos, sqrt, atan2, radians
+import pandas as pd
 import copy
 import random
+import requests
+import geocoder
+
+davinciAPIkey = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJDQlAiLCJ0ZWFtX2lkIjoiZGExMmEwZmUtNDkzNy0zNzQ3LWI3ZTctZTgzMDQwMTJmNmFiIiwiZXhwIjo5MjIzMzcyMDM2ODU0Nzc1LCJhcHBfaWQiOiJkNzI3OGJmYS1kZmM5LTRlODQtODdhMi01NDZlY2E5YThiOTcifQ.bhEkLXi8LHS6iLJCGGjhmnOfXkkT8LZs1-LaNb3c4j4"
 
 app = Flask(__name__, static_folder='static')
+app.debug = True
+
+CORS(app)
+
+current_user = None
+form_data = {}
+
+class User(object):
+    name = ""
+    age = 0
+    gender = ""
+    income = 0.0
+    lat = 0.0
+    lng = 0.0
+    address = ""
+    postCode = ""
+    relationStatus = ""
+    workAddress = ""
+    workLatLng = [0.0, 0.0]
+    dailyCost = 0.0
+    numInfant = 0
+    numTodd = 0
+    numPre = 0
+    numKinder = 0
+    numSchool = 0
+
+    # The class "constructor" - It's actually an initializer
+    def __init__(self, name, age, gender, income, lat, lng, address, postCode, relationStatus, workAddress, workLatLng, dailyCost, numInfant, numTodd, numPre, numKinder, numSchool):
+        self.name = name
+        self.age = age
+        self.gender = gender
+        self.income = income
+        self.lat = lat
+        self.lng = lng
+        self.address = address
+        self.postCode = postCode
+        self.relationStatus = relationStatus
+        self.workAddress = workAddress
+        self.workLatLng = workLatLng
+        self.dailyCost = dailyCost
+        self.numInfant = numInfant
+        self.numTodd = numTodd
+        self.numPre = numPre
+        self.numKinder = numKinder
+        self.numSchool = numSchool
+
+
 
 @app.route('/')
-def index():
+def reroute():
+	return redirect(url_for('login'))
+
+@app.route('/login')
+def login():
+	if current_user != None:
+		return redirect(url_for('home'))
+	return render_template('login.html')
+
+@app.route('/handle_data', methods=['POST'])
+def handle_data():
+    error=None
+    if len(request.form['custId'])==0:
+        error="Invalid customer ID"
+        return render_template('login.html', error=error)
+
+    for key,val in request.form.items():
+        if val=='':
+            form_data[key] = 0 if key != "workAddress" else ""
+        else:
+            form_data[key] = val
+    #return render_template('success.html', form_data=form_data)
+    response = requests.get('https://api.td-davinci.com/api/customers/' + form_data['custId'],
+                                headers = { 'Authorization': davinciAPIkey })
+    print(response)
+
+    geocode_r = geocoder.arcgis(form_data["workAddress"])
+
+    global current_user
+    current_user = User(
+        str(response.json()['result']['givenName'] + " " + response.json()['result']['surname']),
+        int(response.json()['result']['age']),
+        str(response.json()['result']['gender']),
+        float(response.json()['result']['totalIncome']),
+        float(response.json()['result']['addresses']['principalResidence']['latitude']),
+        float(response.json()['result']['addresses']['principalResidence']['longitude']),
+        str(response.json()['result']['addresses']['principalResidence']['streetNumber'] + " " + response.json()['result']['addresses']['principalResidence']['streetName']),
+        str(response.json()['result']['addresses']['principalResidence']['postalCode']),
+        str(response.json()['result']['relationshipStatus']),
+        str(form_data["workAddress"]),
+        [geocode_r.lat, geocode_r.lng],
+        float(form_data["dailyCost"]),
+        int(form_data["numInfant"]),
+        int(form_data["numToddler"]),
+        int(form_data["numPreSchool"]),
+        int(form_data["numKinder"]),
+        int(form_data["numSchool"]))
+
+    for attr, value in current_user.__dict__.items():
+        print(attr, value)
+
+    return redirect(url_for('home'))
+
+@app.route('/home')
+def home():
     return send_from_directory(app.static_folder, "index.html")
 
 #Read CSV
@@ -46,6 +154,16 @@ def rand_cost_arr(low, high):
         test.append(rand)
     return test
 
+def triangle_coef(tip, base0, base1):
+    """tip, base0, base1 are [x, y]"""
+    base = calc_distance(base0[0], base0[1], base1[0], base1[1])
+    side0 = calc_distance(base0[0], base0[1], tip[0], tip[1])
+    side1 = calc_distance(base1[0], base1[1], tip[0], tip[1])
+    return base / (side0 + side1)
+
+def distance_coef(latlng):
+    return triangle_coef(latlng, [current_user.lat, current_user.lng], current_user.workLatLng)
+
 #Preprocessing:
 #(1) AUSPICE: (Non Profit = 1 and Commercial = 0)
 child_care['AUSPICE'] = (child_care['AUSPICE'] == 'Non Profit Agency').astype(int)
@@ -67,10 +185,8 @@ child_care['cost_PG'] = rand_cost_arr(35,55)
 child_care['cost_KG'] = rand_cost_arr(30,45)
 child_care['cost_SG'] = rand_cost_arr(20,35)
 
-@app.route("/")
-def helloWorld():
-    return 'Hello World'
 
+#Example ID: d7278bfa-dfc9-4e84-87a2-546eca9a8b97_c418b5e6-ef7a-4774-88bc-762f2e9adc53
 @app.route("/getPreprocessedData", methods=['GET'])
 def preprocessedData():
     if request.method == 'GET':
@@ -80,27 +196,83 @@ def preprocessedData():
                  'cost_IG', 'cost_TG', 'cost_PG', 'cost_KG', 'cost_SG']
                 ].to_json(orient='index')
 
-@app.route("/getChildCareData", methods=['POST'])
+@app.route("/getChildCareData")
 def childcare():
-    if request.method == 'POST':
-        #Getting Parameters
-        in_loc_lat = request.values.get('a', type=str, default=None)
-        in_loc_lon = request.values.get('b', type=str, default=None)
+    #Getting Parameters
+    in_loc_lat = request.values.get('lat', type=str, default=None)
+    in_loc_lon = request.values.get('lon', type=str, default=None)
+    # radius = request.values.get('radius', type=int, default=5000)
+    max_cost = request.values.get('max_cost', type=str, default=None) #Max cost willing to spend per child (per day)
+    num_infants = request.values.get('num_infants', type=str, default=None) #Infants (0-18 months) IGSPACE
+    num_toddlers = request.values.get('num_toddlers', type=str, default=None) #Toddlers (18-30 months) TGSPACE
+    num_preschoolers = request.values.get('num_preschoolers', type=str, default=None) #Preschoolers (30-48 months) PGSPACE
+    num_kindergarden = request.values.get('num_kindergarden', type=str, default=None) #Kindergarden (48-72 months, Full Day Kindergarden) KGSPACE
+    num_school = request.values.get('num_school', type=str, default=None) #School (72+ months) SGSPACE
 
-        temp = copy.deepcopy(child_care)
-        #(4) DISTANCE FROM HOME
-        distance_col = []
-        for K, row in child_care.iterrows():
-            distance_col.append(calc_distance(float(in_loc_lat),float(in_loc_lon),row['LATITUDE'],row['LONGITUDE']))
+    temp = copy.deepcopy(child_care)
+    #(1) Distance from home and score based on school location relative to work+home coordinates
+    distance_col, dist_score = [], []
+    for K, row in child_care.iterrows():
+        distance_col.append(calc_distance(float(in_loc_lat),float(in_loc_lon),row['LATITUDE'],row['LONGITUDE']))
+        dist_score.append(distance_coef([row['LATITUDE'],row['LONGITUDE']]))
 
-        temp['DIST_FROM_HOME'] = distance_col
-        output = temp[temp['DIST_FROM_HOME'] < 10]
+    temp['DIST_FROM_HOME'] = distance_col
+    temp['DIST_SCORE'] = dist_score
 
-        return output[['LOC_NAME', 'LONGITUDE', 'LATITUDE', 'PHONE', 'AUSPICE', 'SUBSIDY', 'DIST_FROM_HOME',
-                 'IGSPACE', 'TGSPACE', 'PGSPACE', 'KGSPACE', 'SGSPACE', 'TOTSPACE',
-                 'IGSPACE_AVAIL', 'TGSPACE_AVAIL', 'KGSPACE_AVAIL', 'PGSPACE_AVAIL', 'SGSPACE_AVAIL', 'TOT_AVAIL',
-                 'cost_IG', 'cost_TG', 'cost_PG', 'cost_KG', 'cost_SG']
-                ].to_json(orient='index')
+    filtered1 = temp[temp['DIST_FROM_HOME'] < 10]
+
+    child_mapping = {'num_infants': 'cost_IG', 'num_toddlers':'cost_TG',
+                 'num_preschoolers':'cost_PG', 'num_kindergarden':'cost_KG',
+                 'num_school':'cost_SG'}
+
+    filtered2 = filtered1[(filtered1['IGSPACE_AVAIL'] >= num_infants) &
+                        (filtered1['TGSPACE_AVAIL'] >= num_toddlers) &
+                        (filtered1['PGSPACE_AVAIL'] >= num_preschoolers) &
+                        (filtered1['KGSPACE_AVAIL'] >= num_kindergarden) &
+                        (filtered1['SGSPACE_AVAIL'] >= num_school)]
+
+    avg_cost = []
+    num = 0
+    for child_class in [('num_infants', num_infants), ('num_toddlers', num_toddlers), ('num_preschoolers', num_preschoolers), ('num_kindergarden', num_kindergarden), ('num_school', num_school)]:
+        if child_class[1] > 0:
+            num += 1
+            if avg_cost == []:
+                avg_cost = filtered2[child_mapping[child_class[0]]].values
+            else:
+                avg_cost += filtered2[child_mapping[child_class[0]]].values
+
+    filtered2['AVG_COST'] = (avg_cost/num)
+    X = filtered2[['LATITUDE', 'LONGITUDE', 'RATING', 'AVG_COST', 'DIST_SCORE']]
+
+    recommend_size = 5
+
+    if filtered2.shape[0] > recommend_size:
+        k = int(X.shape[0]/recommend_size)
+
+    scaler = MinMaxScaler(feature_range = (0,1))
+    trainX = scaler.fit_transform(X)
+
+    kmeans = KMeans(n_clusters=k, random_state=0).fit(trainX)
+
+    pred_x = [[float(in_loc_lat), float(in_loc_lon), 5, float(max_cost), 0.9]]
+
+    group_predicted = kmeans.predict(scaler.transform(pred_x))
+    where_labels = np.array(kmeans.labels_)
+    raw_arr = X.values
+
+    output = pd.DataFrame()
+    for idx in np.where(where_labels == group_predicted)[0]:
+        if output.empty:
+            output = child_care[(child_care['LATITUDE']==raw_arr[idx][0]) & (child_care['LONGITUDE']==raw_arr[idx][1])]
+        else:
+            output = pd.concat([output, child_care[(child_care['LATITUDE']==raw_arr[idx][0]) & (child_care['LONGITUDE']==raw_arr[idx][1])]])
+
+    return output[['LOC_NAME', 'LONGITUDE', 'LATITUDE', 'PHONE', 'STR_NO', 'STREET', 'UNIT',
+             'RATING', 'DIST_FROM_HOME',
+             'IGSPACE', 'TGSPACE', 'PGSPACE', 'KGSPACE', 'SGSPACE', 'TOTSPACE',
+             'IGSPACE_AVAIL', 'TGSPACE_AVAIL', 'KGSPACE_AVAIL', 'PGSPACE_AVAIL', 'SGSPACE_AVAIL', 'TOT_AVAIL',
+             'cost_IG', 'cost_TG', 'cost_PG', 'cost_KG', 'cost_SG']
+            ].to_json(orient='index')
 
 if __name__ == '__main__':
     app.run()
