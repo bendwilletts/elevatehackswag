@@ -5,7 +5,7 @@ var infowindow;
 
 
 function initMap() {
-
+  
   var toronto = {lat: 43.6532, lng: -79.3832}; //43.6532 N, 79.3832 W
   // The map, centered at Toronto
   map = new google.maps.Map(
@@ -119,7 +119,7 @@ function new_marker(info) {
       </tr>
       <tr>
         <th scope="row">Rating</th>
-        <td>` + into.RATING + `</td>
+        <td>` + info.RATING + `</td>
       </tr>
       <tr>
         <th scope="row">Phone</th>
@@ -165,7 +165,7 @@ function new_recommendation(info){
       </tr>
       <tr>
         <th scope="row">Rating</th>
-        <td>` + into.RATING + `</td>
+        <td>` + info.RATING + `</td>
       </tr>
       <tr>
         <th scope="row">Phone</th>
