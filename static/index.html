@@ -15,8 +15,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="static/css/main.css">
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
             integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
             crossorigin="anonymous"></script>
@@ -29,36 +30,22 @@
 
 <body>
 <main class="cd-main-content">
-    <a href="#0" onclick="document.getElementById('right_panel').classList.add('right_panel_active')">Recommendations Windows</a>
     <!--[if lt IE 8]>
     <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a
             href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
 
+    <nav class="navbar navbar-expand-lg navbar-light bg-light header">
+          <a class="navbar-brand" href="#">Toronto Kids Connections</a>
+          <i class="fas fa-user-circle fa-2x pull-right"></i>
+        </nav>
     <div class="container-fluid">
         <div class="row">
-            <div class="col-md-12" id="header">
-                <h2>Map Page</h2>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-2">
-                <ul class="list-group">
-                    <li class="list-group-item btn btn-light" onClick="sidebar_click(this)">Child care</li>
-                    <br>
-                    <li class="list-group-item btn btn-light" onClick="sidebar_click(this)">Clinic</li>
-                    <br>
-                    <li class="list-group-item btn btn-light" onClick="sidebar_click(this)">Park</li>
-                </ul>
-            </div>
-            <div class="col-md-10">
+            <div class="col-md-9">
                 <div id="map"></div>
             </div>
-        </div>
-    </div>
-</main>
-<div id="right_panel" class="right_panel">
-    <div class="list-group">
+            <div class="col-md-3">
+                    <div class="list-group">
         <a href="#" class="list-group-item list-group-item-action flex-column align-items-start active">
             <div class="d-flex w-100 justify-content-between">
                 <h5 class="mb-1">Recommendation 1</h5>
@@ -95,6 +82,11 @@
             <small>Recommendation 5 small text</small>
         </a>
     </div>
+            </div>
+        </div>
+    </div>
+</main>
+<div id="right_panel" class="right_panel">
 </div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
