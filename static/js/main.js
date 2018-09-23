@@ -74,6 +74,15 @@ function new_marker(info) {
     <tbody>
       <tr> 
         <th scope="row">` + info.LOC_NAME + `</th>
+      </tr>
+      <tr>
+        <th scope="row">Address</th>
+        <td>` + info.STR_NO + ' ' + info.STREET + `</td>
+      </tr>
+      <tr>
+        <th scope="row">Rating</th>
+        <td>` + into.RATING + `</td>
+      </tr>
       <tr>
         <th scope="row">Phone</th>
         <td>` + info.PHONE + `</td>
@@ -111,6 +120,15 @@ function new_recommendation(info){
     <tbody>
       <tr> 
         <th scope="row">` + info.LOC_NAME + `</th>
+      </tr>
+      <tr>
+        <th scope="row">Address</th>
+        <td>` + info.STR_NO + ' ' + info.STREET + `</td>
+      </tr>
+      <tr>
+        <th scope="row">Rating</th>
+        <td>` + into.RATING + `</td>
+      </tr>
       <tr>
         <th scope="row">Phone</th>
         <td>` + info.PHONE + `</td>
