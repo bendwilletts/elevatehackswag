@@ -120,6 +120,10 @@ def handle_data():
 def home():
     return send_from_directory(app.static_folder, "index.html")
 
+@app.route('/communities')
+def communities():
+    return send_from_directory(app.static_folder, "communities.html")
+
 #Read CSV
 child_care = pd.read_csv("child-care.csv", encoding="latin1")
 
