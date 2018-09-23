@@ -269,12 +269,20 @@ def childcare():
         else:
             output = pd.concat([output, filtered2[(filtered2['LATITUDE']==raw_arr[idx][0]) & (filtered2['LONGITUDE']==raw_arr[idx][1])]])
 
-    return output[['LOC_NAME', 'LONGITUDE', 'LATITUDE', 'PHONE', 'STR_NO', 'STREET', 'UNIT',
+    output_json = output[['LOC_NAME', 'LONGITUDE', 'LATITUDE', 'PHONE', 'STR_NO', 'STREET', 'UNIT',
              'RATING', 'DIST_FROM_HOME',
              'IGSPACE', 'TGSPACE', 'PGSPACE', 'KGSPACE', 'SGSPACE', 'TOTSPACE',
              'IGSPACE_AVAIL', 'TGSPACE_AVAIL', 'KGSPACE_AVAIL', 'PGSPACE_AVAIL', 'SGSPACE_AVAIL', 'TOT_AVAIL',
              'cost_IG', 'cost_TG', 'cost_PG', 'cost_KG', 'cost_SG']
-            ].to_json(orient='index')
+            ].to_json(orient='records')
 
+    other_json = filtered2[['LOC_NAME', 'LONGITUDE', 'LATITUDE', 'PHONE', 'STR_NO', 'STREET', 'UNIT',
+             'RATING', 'DIST_FROM_HOME',
+             'IGSPACE', 'TGSPACE', 'PGSPACE', 'KGSPACE', 'SGSPACE', 'TOTSPACE',
+             'IGSPACE_AVAIL', 'TGSPACE_AVAIL', 'KGSPACE_AVAIL', 'PGSPACE_AVAIL', 'SGSPACE_AVAIL', 'TOT_AVAIL',
+             'cost_IG', 'cost_TG', 'cost_PG', 'cost_KG', 'cost_SG']
+            ].to_json(orient='records')
+    
+    return json.dumps([output_json, other_json])
 if __name__ == '__main__':
     app.run()
