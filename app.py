@@ -289,5 +289,14 @@ def childcare():
             ].to_json(orient='records')
     
     return json.dumps([output_json, other_json])
+
+@app.route("/getAddreses")
+def getAddresses():
+	if not current_user:
+		print("USER NOT FOUND");
+	print(current_user)
+	output = pd.DataFrame({"lat":[current_user.lat, current_user.workLatLng[0]], "lng":[current_user.lng, current_user.workLatLng[1]]})
+
+	return output.to_json(orient='records')
 if __name__ == '__main__':
     app.run()

@@ -12,10 +12,10 @@ function initMap() {
       document.getElementById('map'), {zoom: 11, center: toronto});
 
   $.get("http://localhost:5000/getChildCareData", function(data){
-    var parsed = JSON.parse(data)
+    var parsed = JSON.parse(data);
     var rec_centers = JSON.parse(parsed[0]);
     var child_care_centers = JSON.parse(parsed[1]);
-    
+
     //Create markers through all filtered results
     for(var i=0; i<Object.keys(child_care_centers).length; i++){
       new_marker(child_care_centers[i]);
@@ -28,6 +28,44 @@ function initMap() {
       }
       new_recommendation(rec_centers[i]);
     }
+  });
+
+  $.get("http://localhost:5000/getAddreses", function(data){
+     var parsed = JSON.parse(data);
+     var home = parsed[0];
+     var work = parsed[1];
+    //marker for home address
+     var marker = new google.maps.Marker({
+        position: {lat: home.lat, lng: home.lng},
+        map: map,
+        title: "Home",
+        icon: {
+            path: fontawesome.markers.HOME,
+            fillColor: '#36454f',
+            fillOpacity: 0.8,
+            strokeColor: '#000000',
+            strokeOpacity: 1,
+            strokeWeight: 1,
+            scale: 0.5
+        }
+      });    
+     //marker for work address
+     var marker = new google.maps.Marker({
+        position: {lat: work.lat, lng: work.lng},
+        map: map,
+        title: "Work",
+        icon: {
+            path: fontawesome.markers.BRIEFCASE,
+            fillColor: '#36454f',
+            fillOpacity: 0.8,
+            strokeColor: '#000000',
+            strokeOpacity: 1,
+            strokeWeight: 1,
+            scale: 0.5
+        }
+      });   
+   
+
   });
 }
 
