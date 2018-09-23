@@ -94,8 +94,9 @@ def childcare():
             distance_col.append(calc_distance(float(in_loc_lat),float(in_loc_lon),row['LATITUDE'],row['LONGITUDE']))
 
         temp['DIST_FROM_HOME'] = distance_col
+        output = temp[temp['DIST_FROM_HOME'] < 10]
 
-        return temp[['LOC_NAME', 'LONGITUDE', 'LATITUDE', 'PHONE', 'AUSPICE', 'SUBSIDY', 'DIST_FROM_HOME',
+        return output[['LOC_NAME', 'LONGITUDE', 'LATITUDE', 'PHONE', 'AUSPICE', 'SUBSIDY', 'DIST_FROM_HOME',
                  'IGSPACE', 'TGSPACE', 'PGSPACE', 'KGSPACE', 'SGSPACE', 'TOTSPACE',
                  'IGSPACE_AVAIL', 'TGSPACE_AVAIL', 'KGSPACE_AVAIL', 'PGSPACE_AVAIL', 'SGSPACE_AVAIL', 'TOT_AVAIL',
                  'cost_IG', 'cost_TG', 'cost_PG', 'cost_KG', 'cost_SG']
