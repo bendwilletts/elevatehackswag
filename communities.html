@@ -125,12 +125,13 @@
 
 </head>
 <body>
-        <div ng-app="myApp" ng-controller="myCtrl"  ng-init= "age_box = -1;show_find = false;show_my = true">
+        <div ng-app="myApp" ng-controller="myCtrl"  ng-init= "age_box = -1; tag_box = -1; ward_box = -1; show_find = true;show_my = false">
 <div class="sidenav">
     
 <img src = "icon.png" style = "width:80%; margin:0px 0px 100px 8%;">
-  <a href="#about" ng-click = "show_find = true; show_my=false;">Find Connections</a>
-  <a href="#services" ng-click = "show_find = false;show_my = true">My Connections</a>
+  <a  ng-click = "show_find = true; show_my=false;">Find Connections</a>
+  <a  ng-click = "show_find = false;show_my = true">My Connections</a>
+  <a  ng-click = "show_find = false;show_my = true">Resource Map</a>
 </div>
 
 <div class="main"  ng-show="show_find">
@@ -337,7 +338,8 @@
                
                 $scope.user = {
                     ages: [8,5],
-                    tags: ["NTC"]
+                    tags: ["NTC"],
+                    location: "ward 13"
                 }
            
 /////COMMUNITIES
@@ -354,7 +356,7 @@
                  LKP = {
                     title:"Local Kids Playgroup",
                     age: 8,
-                    location: "ward 13",
+                    location: "ward 9",
                     description: "",
                     tag: ""
 
@@ -392,10 +394,10 @@
                // $scope.age_box *= -1;
                 if($scope.age_box == 1){
                     $scope.age_box = -1;
-                    $scopes.check--;
+                    $scope.check--;
                 }
                 else{ $scope.age_box = 1;
-                $scope.checks++;
+                $scope.check++;
 
                 }
                 console.log($scope.age_box)
@@ -445,6 +447,33 @@
 
                
             };
+
+            $scope.change_ward_box = function(){
+               // $scope.age_box *= -1;
+                if($scope.ward_box == 1){
+                    $scope.ward_box = -1;
+                }
+                else{ $scope.ward_box = 1;
+
+                }
+                console.log($scope.ward_box)
+                console.log($scope.showcommunities);
+
+        if($scope.ward_box == 1){
+            $scope.showcommunities = [];
+            for(i=0;i<$scope.communities.length;i++){
+                if($scope.user.location == $scope.communities[i].location){
+                    
+                    $scope.showcommunities.push($scope.communities[i]);
+                }
+            }
+        }else{
+            $scope.showcommunities = $scope.communities;
+        }
+
+               
+            };
+
 
          
             console.log($scope.showcommunities);
