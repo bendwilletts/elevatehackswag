@@ -5,6 +5,7 @@ from math import sin, cos, sqrt, atan2, radians
 import copy
 import random
 import requests
+import geocoder
 
 davinciAPIkey = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJDQlAiLCJ0ZWFtX2lkIjoiZGExMmEwZmUtNDkzNy0zNzQ3LWI3ZTctZTgzMDQwMTJmNmFiIiwiZXhwIjo5MjIzMzcyMDM2ODU0Nzc1LCJhcHBfaWQiOiJkNzI3OGJmYS1kZmM5LTRlODQtODdhMi01NDZlY2E5YThiOTcifQ.bhEkLXi8LHS6iLJCGGjhmnOfXkkT8LZs1-LaNb3c4j4"
 
@@ -27,6 +28,7 @@ class User(object):
     postCode = ""
     relationStatus = ""
     workAddress = ""
+    workLatLng = [0.0, 0.0]
     dailyCost = 0.0
     numInfant = 0
     numTodd = 0
@@ -35,7 +37,7 @@ class User(object):
     numSchool = 0
 
     # The class "constructor" - It's actually an initializer 
-    def __init__(self, name, age, gender, income, lat, lng, address, postCode, relationStatus, workAddress, dailyCost, numInfant, numTodd, numPre, numKinder, numSchool):
+    def __init__(self, name, age, gender, income, lat, lng, address, postCode, relationStatus, workAddress, workLatLng, dailyCost, numInfant, numTodd, numPre, numKinder, numSchool):
         self.name = name
         self.age = age
         self.gender = gender
@@ -46,6 +48,7 @@ class User(object):
         self.postCode = postCode
         self.relationStatus = relationStatus
         self.workAddress = workAddress
+        self.workLatLng = workLatLng
         self.dailyCost = dailyCost
         self.numInfant = numInfant
         self.numTodd = numTodd
@@ -81,6 +84,9 @@ def handle_data():
     response = requests.get('https://api.td-davinci.com/api/customers/' + form_data['custId'],
                                 headers = { 'Authorization': davinciAPIkey })
     print(response)
+
+    geocode_r = geocoder.arcgis(form_data["workAddress"])
+
     global current_user
     current_user = User(
         str(response.json()['result']['givenName'] + " " + response.json()['result']['surname']), 
@@ -93,6 +99,7 @@ def handle_data():
         str(response.json()['result']['addresses']['principalResidence']['postalCode']),
         str(response.json()['result']['relationshipStatus']),
         str(form_data["workAddress"]),
+        [geocode_r.lat, geocode_r.lng],
         float(form_data["dailyCost"]),
         int(form_data["numInfant"]),
         int(form_data["numToddler"]),
@@ -151,6 +158,9 @@ def triangle_coef(tip, base0, base1):
     side0 = calc_distance(base0[0], base0[1], tip[0], tip[1])
     side1 = calc_distance(base1[0], base1[1], tip[0], tip[1])
     return base / (side0 + side1)
+
+def distance_coef(latlng):
+    return triangle_coef(latlng, [current_user.lat, current_user.lng], current_user.workLatLng)
 
 #Preprocessing:
 #(1) AUSPICE: (Non Profit = 1 and Commercial = 0)
