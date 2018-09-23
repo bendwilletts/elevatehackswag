@@ -8,8 +8,25 @@ function loc_infowindow(info) {
 				<tr>
 					<th scope="row">Phone</th>
 					<td>` + info.PHONE + `</td>
+				</tr>
 			</tbody>
 		</table>`;
+}
+
+function new_marker(info) {
+	var marker = new google.maps.Marker({
+		position: {lat: info.LATITUDE, lng: info.LONGITUDE},
+		map: map,
+		title: info.LOC_NAME
+	});
+
+	var infowindow = new google.maps.InfoWindow({
+		content: loc_infowindow(info)
+	});
+	
+	marker.addListener('click', function() {
+		infowindow.open(map, marker);
+	});
 }
 
 function initMap() {
@@ -23,19 +40,7 @@ function initMap() {
   $.get("http://localhost:5000/getChildCareData", {lat: uLat, lon: uLong}, function(data){
     var child_care_centers = JSON.parse(data);
     for(var i=0; i<Object.keys(child_care_centers).length; i++){
-      var marker = new google.maps.Marker({
-        position: {lat: child_care_centers[i].LATITUDE, lng: child_care_centers[i].LONGITUDE},
-        map: map,
-        title: child_care_centers[i].LOC_NAME
-      });
-    
-      var infowindow = new google.maps.InfoWindow({
-        content: loc_infowindow(child_care_centers[i])
-      });
-      
-      marker.addListener('click', function() {
-	infowindow.open(map, marker);
-      });
+	    new_marker(child_care_centers[i]);
     }
   });
   // The marker, positioned at Uluru
