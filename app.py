@@ -8,6 +8,7 @@ import copy
 import random
 import requests
 import geocoder
+import numpy as np
 
 davinciAPIkey = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJDQlAiLCJ0ZWFtX2lkIjoiZGExMmEwZmUtNDkzNy0zNzQ3LWI3ZTctZTgzMDQwMTJmNmFiIiwiZXhwIjo5MjIzMzcyMDM2ODU0Nzc1LCJhcHBfaWQiOiJkNzI3OGJmYS1kZmM5LTRlODQtODdhMi01NDZlY2E5YThiOTcifQ.bhEkLXi8LHS6iLJCGGjhmnOfXkkT8LZs1-LaNb3c4j4"
 
@@ -199,15 +200,15 @@ def preprocessedData():
 @app.route("/getChildCareData")
 def childcare():
     #Getting Parameters
-    in_loc_lat = request.values.get('lat', type=str, default=None)
-    in_loc_lon = request.values.get('lon', type=str, default=None)
+    in_loc_lat = current_user.lat
+    in_loc_lon = current_user.lng
     # radius = request.values.get('radius', type=int, default=5000)
-    max_cost = request.values.get('max_cost', type=str, default=None) #Max cost willing to spend per child (per day)
-    num_infants = request.values.get('num_infants', type=str, default=None) #Infants (0-18 months) IGSPACE
-    num_toddlers = request.values.get('num_toddlers', type=str, default=None) #Toddlers (18-30 months) TGSPACE
-    num_preschoolers = request.values.get('num_preschoolers', type=str, default=None) #Preschoolers (30-48 months) PGSPACE
-    num_kindergarden = request.values.get('num_kindergarden', type=str, default=None) #Kindergarden (48-72 months, Full Day Kindergarden) KGSPACE
-    num_school = request.values.get('num_school', type=str, default=None) #School (72+ months) SGSPACE
+    max_cost = current_user.dailyCost #Max cost willing to spend per child (per day)
+    num_infants = current_user.numInfant #Infants (0-18 months) IGSPACE
+    num_toddlers = current_user.numTodd #Toddlers (18-30 months) TGSPACE
+    num_preschoolers = current_user.numPre #Preschoolers (30-48 months) PGSPACE
+    num_kindergarden = current_user.numKinder #Kindergarden (48-72 months, Full Day Kindergarden) KGSPACE
+    num_school = current_user.numSchool #School (72+ months) SGSPACE
 
     temp = copy.deepcopy(child_care)
     #(1) Distance from home and score based on school location relative to work+home coordinates
@@ -218,6 +219,7 @@ def childcare():
 
     temp['DIST_FROM_HOME'] = distance_col
     temp['DIST_SCORE'] = dist_score
+    temp['RATING'] = np.random.randint(1, 5, child_care.shape[0]) + np.random.rand((child_care.shape[0]))
 
     filtered1 = temp[temp['DIST_FROM_HOME'] < 10]
 
@@ -263,9 +265,9 @@ def childcare():
     output = pd.DataFrame()
     for idx in np.where(where_labels == group_predicted)[0]:
         if output.empty:
-            output = child_care[(child_care['LATITUDE']==raw_arr[idx][0]) & (child_care['LONGITUDE']==raw_arr[idx][1])]
+            output = filtered2[(filtered2['LATITUDE']==raw_arr[idx][0]) & (filtered2['LONGITUDE']==raw_arr[idx][1])]
         else:
-            output = pd.concat([output, child_care[(child_care['LATITUDE']==raw_arr[idx][0]) & (child_care['LONGITUDE']==raw_arr[idx][1])]])
+            output = pd.concat([output, filtered2[(filtered2['LATITUDE']==raw_arr[idx][0]) & (filtered2['LONGITUDE']==raw_arr[idx][1])]])
 
     return output[['LOC_NAME', 'LONGITUDE', 'LATITUDE', 'PHONE', 'STR_NO', 'STREET', 'UNIT',
              'RATING', 'DIST_FROM_HOME',

@@ -7,6 +7,13 @@
     margin: 0;
     padding: 0;
   }
+  .cd-main-content > .header{
+    margin-bottom: 15px;
+  }
+  .cd-main-content > .header > .pull-right{
+    float: right;
+  }
+
   .cd-panel {
       /*...*/
       visibility: hidden;
