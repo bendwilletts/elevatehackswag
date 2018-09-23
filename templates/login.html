@@ -1,0 +1,32 @@
+<form action="{{ url_for('handle_data') }}" method="post">
+    <div>
+      <p> Link your TD Account </p>
+      <p>{{error}}</p>
+      <label for="custId">Customer ID</label>
+      <input name="custId" id="custId">
+    </div>
+    <p> Please enter your number children in each category: </p>
+    <div>
+      <label for='numInfant'> Infant (0 - 18 months) </label>
+      <input name='numInfant' id='numInfant'>
+    </div>
+    <div>
+        <label for='numToddler'> Toddler (18 months - 2.5 years) </label>
+        <input name='numToddler' id='numToddler'>
+    </div>
+    <div>
+        <label for='numPreSchool'> Preschool (2.5 - 4 years) </label>
+        <input name='numPreSchool' id='numPreSchool'>
+    </div>
+    <div>
+        <label for='numKinder'> Kindergarten (4 - 6 years) </label>
+        <input name='numKinder' id='numKinder'>
+    </div>
+    <div>
+        <label for='numSchool'> School Age (6+ years) </label>
+        <input name='numSchool' id='numSchool'>
+    </div>
+    
+    <button>Connect</button>
+    </div>
+  </form>

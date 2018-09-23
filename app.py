@@ -1,4 +1,4 @@
-from flask import Flask, redirect, send_from_directory, jsonify, request
+from flask import Flask, redirect, send_from_directory, jsonify, request, url_for, render_template
 from flask_cors import CORS
 import pandas as pd
 from math import sin, cos, sqrt, atan2, radians
@@ -10,8 +10,26 @@ app.debug = True
 
 CORS(app)
 
+current_user = None
+
 @app.route('/')
-def index():
+def reroute():
+	return redirect(url_for('login'))
+
+@app.route('/login')
+def login():
+	if current_user:
+		return redirect(url_for('home'))
+	return render_template('login.html')
+
+@app.route('/handle_data',methods=['GET', 'POST'])
+def handle_data():
+	global current_user
+	current_user = request.form
+	return redirect(url_for('home'))
+
+@app.route('/home')
+def home():
     return send_from_directory(app.static_folder, "index.html")
 
 #Read CSV
@@ -70,10 +88,6 @@ child_care['cost_TG'] = rand_cost_arr(45,65)
 child_care['cost_PG'] = rand_cost_arr(35,55)
 child_care['cost_KG'] = rand_cost_arr(30,45)
 child_care['cost_SG'] = rand_cost_arr(20,35)
-
-@app.route("/")
-def helloWorld():
-    return 'Hello World'
 
 @app.route("/getPreprocessedData", methods=['GET'])
 def preprocessedData():
