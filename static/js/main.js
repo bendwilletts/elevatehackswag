@@ -119,7 +119,7 @@ function new_marker(info) {
       </tr>
       <tr>
         <th scope="row">Rating</th>
-        <td>` + info.RATING + `</td>
+        <td>` + info.RATING.toFixed(1) +"/5.0"+`</td>
       </tr>
       <tr>
         <th scope="row">Phone</th>
@@ -165,7 +165,7 @@ function new_recommendation(info){
       </tr>
       <tr>
         <th scope="row">Rating</th>
-        <td>` + info.RATING + `</td>
+        <td>` + info.RATING.toFixed(1) +"/5.0" +`</td>
       </tr>
       <tr>
         <th scope="row">Phone</th>
