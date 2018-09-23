@@ -145,6 +145,13 @@ def rand_cost_arr(low, high):
         test.append(rand)
     return test
 
+def triangle_coef(tip, base0, base1):
+    """tip, base0, base1 are [x, y]"""
+    base = calc_distance(base0[0], base0[1], base1[0], base1[1])
+    side0 = calc_distance(base0[0], base0[1], tip[0], tip[1])
+    side1 = calc_distance(base1[0], base1[1], tip[0], tip[1])
+    return base / (side0 + side1)
+
 #Preprocessing:
 #(1) AUSPICE: (Non Profit = 1 and Commercial = 0)
 child_care['AUSPICE'] = (child_care['AUSPICE'] == 'Non Profit Agency').astype(int)
@@ -182,6 +189,7 @@ def childcare():
     #Getting Parameters
     in_loc_lat = request.values.get('lat', type=str, default=None)
     in_loc_lon = request.values.get('lon', type=str, default=None)
+    radius = request.values.get('radius', type=int, default=5000)
 
     temp = copy.deepcopy(child_care)
     #(4) DISTANCE FROM HOME
