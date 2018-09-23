@@ -9,6 +9,7 @@ import random
 import requests
 import geocoder
 import numpy as np
+import json
 
 davinciAPIkey = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJDQlAiLCJ0ZWFtX2lkIjoiZGExMmEwZmUtNDkzNy0zNzQ3LWI3ZTctZTgzMDQwMTJmNmFiIiwiZXhwIjo5MjIzMzcyMDM2ODU0Nzc1LCJhcHBfaWQiOiJkNzI3OGJmYS1kZmM5LTRlODQtODdhMi01NDZlY2E5YThiOTcifQ.bhEkLXi8LHS6iLJCGGjhmnOfXkkT8LZs1-LaNb3c4j4"
 
@@ -221,7 +222,7 @@ def childcare():
     temp['DIST_SCORE'] = dist_score
     temp['RATING'] = np.random.randint(1, 5, child_care.shape[0]) + np.random.rand((child_care.shape[0]))
 
-    filtered1 = temp[temp['DIST_FROM_HOME'] < 10]
+    filtered1 = temp[temp['DIST_FROM_HOME'] < 5]
 
     child_mapping = {'num_infants': 'cost_IG', 'num_toddlers':'cost_TG',
                  'num_preschoolers':'cost_PG', 'num_kindergarden':'cost_KG',
